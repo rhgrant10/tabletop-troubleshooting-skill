@@ -24,7 +24,7 @@ Add a few words after the command. Plain words are enough, and settings combine:
 /tabletop-troubleshooting interview, forensics, databases, hard
 ```
 
-A broad word is taken as broad on purpose. `investigation` lets the roll pick any kind of investigation; `forensics` picks exactly one. Type `options` at any point to see the full menu.
+Type `options` at any point to see the full menu.
 
 ### How Claude plays
 
