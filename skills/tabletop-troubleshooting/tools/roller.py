@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Scenario roller for troubleshooting tabletop drills.
 
-Reads two Markdown exports:
+Reads three Markdown exports:
   - the Troubleshooting Scenario Option Space (axes, values, rules, interview subset)
+  - the Troubleshooting Scenario Cast (first names for people in a scenario)
   - the Troubleshooting Scenario Log (past scenarios' coordinates)
 
 Commands:
