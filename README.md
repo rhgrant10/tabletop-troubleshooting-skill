@@ -120,7 +120,7 @@ python3 .claude/skills/tabletop-troubleshooting/tools/roller.py check \
 | `verify TOKEN "COORDS"` | Check a decode against a token; prints only `match` or `mismatch` |
 | `decode --space S TOKEN` | Unseal a token: coordinates, value names, Writer notes, and a ready-to-paste log row |
 | `cast --names N [--count K]` | Shuffle the cast list and print the first K names (default 5) for the people in a scenario |
-| `options --space S` | Print the config menu |
+| `options --space S` | Print the config menu in plain words |
 | `check --space S [--log L]` | Validate the option space and stress-test the rules |
 
 The roller rolls axes in a fixed order, applies Hard rules as filters and soft rules as weights, and backtracks when the Hard rules leave no candidates. In coverage modes, it weights each value by `1 / (1 + recent uses)` and never reuses a root-cause layer + mechanism pair from your log.

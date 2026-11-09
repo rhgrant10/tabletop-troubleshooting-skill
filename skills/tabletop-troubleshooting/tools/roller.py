@@ -29,6 +29,7 @@ import base64
 import random
 import re
 import sys
+import textwrap
 from collections import Counter
 
 # Roll order. D comes from config; A shapes everything else, so it rolls next.
@@ -298,7 +299,8 @@ class Roller:
 
     def ordered(self, axis, cands, assignment):
         w = self.weights(axis, cands, assignment)
-        if self.mode == "interview" and axis in self.space["interview"]:
+        # The user's own pins outrank the interview subset: every pinned value stays in play.
+        if self.mode == "interview" and axis in self.space["interview"] and axis not in self.pins:
             subset = self.space["interview"][axis]
             inside = [c for c in cands if c in subset]
             outside = [c for c in cands if c not in subset]
@@ -476,17 +478,55 @@ def cmd_verify(args):
     return 0 if same else 1
 
 
+# How the options menu groups the axes. Plain words only: users never need codes.
+MENU_GROUPS = [
+    ("The situation", ["A"]),
+    ("The system", ["R", "W", "S", "G", "E", "F"]),
+    ("The fault", ["L", "M", "T", "N", "C", "I"]),
+    ("What you see and what you can do", ["Y", "B", "O", "X"]),
+]
+MENU_MODES = [
+    ("drill (default)", "Claude coaches: gives you commands when you know the goal but not the syntax"),
+    ("learn", "Claude tutors: points you where to look and explains each output"),
+    ("junior", "you lead; Claude runs the commands and sometimes misreads them"),
+    ("interview", "Claude only asks questions, like an interviewer; 50 minutes"),
+]
+
+
+def print_wrapped(names):
+    """Print value names as one indented, wrapped paragraph separated by middle dots.
+
+    Some names contain commas and semicolons, so neither works as a separator.
+    A non-breaking space before each dot keeps a wrapped line from starting with one.
+    """
+    text = " · ".join(names)
+    print(textwrap.fill(text, width=100, initial_indent="    ", subsequent_indent="    ",
+                        break_on_hyphens=False))
+
+
 def cmd_options(args):
     space = parse_space(load(args.space))
-    print("Modes: interview, drill (default), learn, junior\n")
-    print("Domains:")
-    for code in space["values"]["D"]:
-        print(f"  {code:<4} {space['names'][code]}")
-    print("\nAxes you can pin or exclude (examples):")
-    for axis in ORDER[1:]:
-        vals = space["values"][axis]
-        sample = ", ".join(f"{v} {space['names'][v]}" for v in vals[:3])
-        print(f"  {axis} {space['axis_names'].get(axis, axis)} ({len(vals)} values): {sample}, ...")
+
+    print("Describe what you want in plain words after the command, for example:")
+    print("  /tabletop-troubleshooting learn, networking")
+    print("Anything you leave out is rolled.")
+
+    print("\nMode")
+    for mode, description in MENU_MODES:
+        print(f"    {mode}: {description}")
+
+    print("\nDifficulty")
+    print("    easy, medium (default), hard: changes how the scenario is written, not what is rolled")
+
+    print("\nDomain (default: Linux host and distributed systems)")
+    print_wrapped(space["names"][code] for code in space["values"]["D"])
+
+    print("\nAsk for or rule out anything below, e.g. \"device fleet\" or \"no security stuff\".")
+    for title, axes in MENU_GROUPS:
+        print(f"\n{title.upper()}")
+        for axis in axes:
+            print(f"  {space['axis_names'].get(axis, axis)}")
+            print_wrapped(space["names"][code] for code in space["values"][axis])
 
 
 def cmd_check(args):

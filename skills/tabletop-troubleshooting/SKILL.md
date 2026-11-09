@@ -1,7 +1,7 @@
 ---
 name: tabletop-troubleshooting
 description: Run a randomized troubleshooting tabletop drill (Linux, distributed systems and other domains). Rolls a scenario from a structured option space with real randomness, plays the environment plus an interviewer, coach, tutor or junior-engineer role, then debriefs and logs coverage.
-argument-hint: "[mode] [domain] [difficulty] [overrides], e.g. interview, storage, hard"
+argument-hint: "options | [mode] [domain] [difficulty] [overrides], e.g. interview, storage, hard"
 disable-model-invocation: true
 ---
 
@@ -27,6 +27,8 @@ Read `SPACE` before anything else. You need its value names and Writer rules to 
 
 ## 1. Resolve the config
 
+If the config is just `options`, run `ROLLER options --space SPACE`, show its output verbatim, and stop without rolling. If the user replies with choices, treat that reply as the config and continue from here.
+
 The user writes the config in plain words; codes are optional. There are four settings:
 
 - **Mode**: `interview`, `drill`, `learn` or `junior`. Default `drill`.
@@ -37,8 +39,6 @@ The user writes the config in plain words; codes are optional. There are four se
 Map the user's words to codes using `SPACE`. For example, "storage, some databases" becomes `D4:2,D5:1`, "device fleet" becomes pin `E7`, and "no security stuff" becomes exclude `D11`. A broad term is deliberately broad: pin every value it fits and let the roll choose among them. For example, "investigation" pins `A2,A3,A5,A6` (performance, forensics, pre-mortem, capacity), and "incident" pins `A1,A4,A7,A8`. Ask only when a term fits nothing, and then offer the closest matches in plain words: describe each by what it means, never by its code. An empty config, or just "go", means all defaults.
 
 Before rolling, confirm in one line, in plain words, for example: `Resolved: drill · mostly storage, some databases · medium · pinned: remote device fleet · excluded: security incidents`. This only restates the user's own choices, so it reveals nothing.
-
-Whenever the user says `options`, run `ROLLER options --space SPACE`, show the output, and wait.
 
 ## 2. Roll and seal
 
