@@ -18,49 +18,49 @@ That starts a coached drill on Linux and distributed systems at medium difficult
 
 ## What you can ask for
 
-Add a few words after the command. Plain words are enough. Each example below adds one idea to the one before:
+Add a few words after the command. Plain words are enough. Here's a few examples:
 
-```
-/tabletop-troubleshooting
-```
+- **Start with the defaults:** a coached drill on Linux or distributed systems, medium difficulty, everything else rolled:
 
-All defaults: a coached drill on Linux or distributed systems, medium difficulty, everything else rolled.
+   ```
+   /tabletop-troubleshooting
+   ```
 
-```
-/tabletop-troubleshooting networking
-```
+- **Pick the area.** Everything else is still rolled:
 
-Pick the area. Everything else is still rolled.
+   ```
+   /tabletop-troubleshooting networking
+   ```
 
-```
-/tabletop-troubleshooting learn, networking
-```
+- **Pick how Claude plays:** here, a tutor who explains each output:
 
-Pick how Claude plays: here, a tutor who explains each output.
+   ```
+   /tabletop-troubleshooting learn, networking
+   ```
 
-```
-/tabletop-troubleshooting learn, networking, easy
-```
+- **Set the difficulty:** a clear signal and at most one red herring:
 
-Set the difficulty: a clear signal and at most one red herring.
+   ```
+   /tabletop-troubleshooting learn, networking, easy
+   ```
 
-```
-/tabletop-troubleshooting databases, forensics
-```
+- **Pick the situation:** the outage is already over, and you work out what happened from what's left:
 
-Pick the situation: the outage is already over, and you work out what happened from what's left.
+   ```
+   /tabletop-troubleshooting databases, forensics
+   ```
 
-```
-/tabletop-troubleshooting interview, storage, hard, bad evidence
-```
+- **Stack several:** a timed mock interview with a weak signal and evidence you can't fully trust:
 
-Stack several: a timed mock interview with a weak signal and evidence you can't fully trust.
+   ```
+   /tabletop-troubleshooting interview, storage, hard, bad evidence
+   ```
 
-```
-/tabletop-troubleshooting learn, DNS resolvers serving stale records after a failover
-```
+- **Bring your own scenario** and skip the roll:
 
-Skip the roll and bring your own scenario.
+   ```
+   /tabletop-troubleshooting learn, DNS resolvers serving stale records after a failover
+   ```
 
 To see everything you can ask for before you start, run:
 
