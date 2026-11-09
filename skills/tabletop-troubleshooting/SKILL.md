@@ -34,9 +34,9 @@ The user writes the config in plain words; codes are optional. There are four se
 - **Difficulty**: `easy`, `medium` or `hard`. Default `medium`. It changes only how you write the scenario, never what is rolled.
 - **Overrides**: pins (fix a value), exclusions (never roll a value), a full or partial coordinate string (treated as pins), or a named free-text scenario (skips the roll).
 
-Map the user's words to codes using `SPACE`. For example, "storage, some databases" becomes `D4:2,D5:1`, "device fleet" becomes pin `E7`, and "no security stuff" becomes exclude `D11`. If a term is ambiguous or matches nothing, ask, offering the closest matches. Never guess. An empty config, or just "go", means all defaults.
+Map the user's words to codes using `SPACE`. For example, "storage, some databases" becomes `D4:2,D5:1`, "device fleet" becomes pin `E7`, and "no security stuff" becomes exclude `D11`. A broad term is deliberately broad: pin every value it fits and let the roll choose among them. For example, "investigation" pins `A2,A3,A5,A6` (performance, forensics, pre-mortem, capacity), and "incident" pins `A1,A4,A7,A8`. Ask only when a term fits nothing, and then offer the closest matches in plain words: describe each by what it means, never by its code. An empty config, or just "go", means all defaults.
 
-Before rolling, confirm in one line, for example: `Resolved: drill · D4:2, D5:1 · medium · pin E7 · exclude D11`. This only restates the user's own choices, so it reveals nothing.
+Before rolling, confirm in one line, in plain words, for example: `Resolved: drill · mostly storage, some databases · medium · pinned: remote device fleet · excluded: security incidents`. This only restates the user's own choices, so it reveals nothing.
 
 Whenever the user says `options`, run `ROLLER options --space SPACE`, show the output, and wait.
 
