@@ -18,13 +18,55 @@ That starts a coached drill on Linux and distributed systems at medium difficult
 
 ## What you can ask for
 
-Add a few words after the command. Plain words are enough, and settings combine:
+Add a few words after the command. Plain words are enough. Each example below adds one idea to the one before:
 
 ```
-/tabletop-troubleshooting interview, forensics, databases, hard
+/tabletop-troubleshooting
 ```
 
-Type `options` at any point to see the full menu.
+All defaults: a coached drill on Linux or distributed systems, medium difficulty, everything else rolled.
+
+```
+/tabletop-troubleshooting networking
+```
+
+Pick the area. Everything else is still rolled.
+
+```
+/tabletop-troubleshooting learn, networking
+```
+
+Pick how Claude plays: here, a tutor who explains each output.
+
+```
+/tabletop-troubleshooting learn, networking, easy
+```
+
+Set the difficulty: a clear signal and at most one red herring.
+
+```
+/tabletop-troubleshooting databases, forensics
+```
+
+Pick the situation: the outage is already over, and you work out what happened from what's left.
+
+```
+/tabletop-troubleshooting interview, storage, hard, bad evidence
+```
+
+Stack several: a timed mock interview with a weak signal and evidence you can't fully trust.
+
+```
+/tabletop-troubleshooting learn, DNS resolvers serving stale records after a failover
+```
+
+Skip the roll and bring your own scenario.
+
+To see everything you can ask for before you start, run:
+
+```
+/tabletop-troubleshooting options
+```
 
 ### How Claude plays
 
@@ -71,14 +113,6 @@ Type `options` at any point to see the full menu.
 | `far from the symptom` | The fault sits in the platform, the control plane, a caller, or the monitoring itself |
 
 `easy`, `medium` and `hard` change only how the scenario is written. The rest change what gets rolled.
-
-### Your own scenario
-
-```
-/tabletop-troubleshooting learn, DNS resolvers serving stale records after a failover
-```
-
-A scenario you describe skips the roll. Claude still logs it at the end, so it counts toward your coverage.
 
 Before rolling, Claude repeats your choices back in one line, e.g. `Resolved: drill · mostly storage, some databases · medium · excluded: security incidents`, so misreadings get caught early.
 
