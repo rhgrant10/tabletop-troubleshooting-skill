@@ -9,6 +9,7 @@ Commands:
   roll     Roll a scenario and print it sealed (base64), so nothing is spoiled.
   decode   Unseal a rolled token: coordinates, value names, writer notes, log row.
   verify   Check a decoded coordinate string against a token; prints only match/mismatch.
+  cast     Print five names, shuffled from a cast list, for the people in a scenario.
   options  Print the menu of domains and axes for building a session config.
   check    Validate the option space and stress-test the rules with many rolls.
 
@@ -17,6 +18,7 @@ Examples:
   python3 roller.py roll --space option_space.md --log scenario_log.md --pin E7 --exclude D17,X5
   python3 roller.py decode --space option_space.md <token>
   python3 roller.py verify <token> "D2 · R5 W1 ..."
+  python3 roller.py cast --names cast.md
   python3 roller.py options --space option_space.md
   python3 roller.py check --space option_space.md --log scenario_log.md
 """
@@ -416,6 +418,30 @@ def cmd_roll(args):
     print(seal(result))
 
 
+def parse_cast(md):
+    """Return the names from a Markdown bulleted list, in order, without duplicates."""
+    names = set()
+    for line in md.splitlines():
+        line = line.strip()
+        if not line.startswith("- "):
+            continue
+        name = line[2:].strip()
+        if name:
+            names.add(name)
+    return names
+
+
+def cmd_cast(args):
+    names = list(parse_cast(load(args.names)))
+    if len(names) < args.count:
+        raise SpaceError(f"cast list has {len(names)} names; need at least {args.count}")
+    rng = random.Random(args.seed) if args.seed is not None else random.SystemRandom()
+    rng.shuffle(names)
+    print("Cast (use these names, in this order, for everyone in the scenario):")
+    for name in names[:args.count]:
+        print(f"  {name}")
+
+
 def cmd_decode(args):
     space = parse_space(load(args.space))
     coords = unseal(args.token)
@@ -511,6 +537,12 @@ def main(argv=None):
     r.add_argument("--window", type=int, default=DEFAULT_WINDOW)
     r.add_argument("--seed", type=int, help="for testing only; omit for real randomness")
     r.set_defaults(func=cmd_roll)
+
+    n = sub.add_parser("cast", help="pick names for the people in a scenario")
+    n.add_argument("--names", required=True, help="Markdown file with one name per bullet")
+    n.add_argument("--count", type=int, default=5)
+    n.add_argument("--seed", type=int, help="for testing only; omit for real randomness")
+    n.set_defaults(func=cmd_cast)
 
     d = sub.add_parser("decode", help="unseal a token at debrief")
     d.add_argument("--space", required=True)

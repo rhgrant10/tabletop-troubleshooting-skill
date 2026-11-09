@@ -19,8 +19,9 @@ Everything lives in `${CLAUDE_SKILL_DIR}`:
 - `option_space.md`: axes, value codes, coherence rules and the interview subset. This is the source of truth.
 - `scenario_log.md`: one row per completed scenario, newest first.
 - `scenario_log_example.md`: an example `scenario_log.md` to use as a reference.
+- `cast.md`: first names for the people in a scenario.
 
-Below, `ROLLER` means `python3 ${CLAUDE_SKILL_DIR}/tools/roller.py`, `SPACE` means `${CLAUDE_SKILL_DIR}/references/option_space.md`, `LOG` means `${CLAUDE_SKILL_DIR}/references/scenario_log.md`, and `EXAMPLE_LOG` means `${CLAUDE_SKILL_DIR}/references/scenario_log_example.md`.
+Below, `ROLLER` means `python3 ${CLAUDE_SKILL_DIR}/tools/roller.py`, `SPACE` means `${CLAUDE_SKILL_DIR}/references/option_space.md`, `CAST` means `${CLAUDE_SKILL_DIR}/references/cast.md`, `LOG` means `${CLAUDE_SKILL_DIR}/references/scenario_log.md`, and `EXAMPLE_LOG` means `${CLAUDE_SKILL_DIR}/references/scenario_log_example.md`.
 
 Read `SPACE` before anything else. You need its value names and Writer rules to build the scenario.
 
@@ -63,6 +64,7 @@ The coordinates are the ground truth. Before writing anything the user sees, wor
 - what the user sees first (Y), the blast radius (B), how trustworthy the evidence is (O), the assignment (A) and the mitigation constraints (X)
 - every Writer rule in `SPACE` whose conditions match
 - concrete facts: hostnames, versions, metrics, timestamps, so that every later output agrees with them
+- the people: run `ROLLER cast --names CAST` once per scenario and take every person's name from its five, in the order printed, starting with whoever brings the incident in. Never invent a name, even for someone who appears late; if the scenario needs more than five people, run `cast` again and skip names already used.
 - the drill format the domain calls for: commands, code or config snippets, or stakeholder interviews
 
 If a combination turns out to be impossible in a way no rule catches, roll again: pin every other value, exclude the offending one, and verify the new token. Remember the gap; you will propose a rule for it at debrief.
