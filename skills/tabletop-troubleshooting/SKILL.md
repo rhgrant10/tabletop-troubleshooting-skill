@@ -17,8 +17,8 @@ Everything lives in `${CLAUDE_SKILL_DIR}`:
 
 - `roller.py`: rolls, seals, verifies and decodes scenarios.
 - `option_space.md`: axes, value codes, coherence rules and the interview subset. This is the source of truth.
-- `scenario_log.md`: one row per completed scenario, newest first.
-- `scenario_log_example.md`: an example `scenario_log.md` to use as a reference.
+- `scenario_log.md`: the user's own log, one row per completed scenario, newest first. It doesn't exist until the user's first scenario is logged.
+- `scenario_log_example.md`: the fixed template that `scenario_log.md` is created from. Never edit it.
 - `cast.md`: first names for the people in a scenario.
 
 Below, `ROLLER` means `python3 ${CLAUDE_SKILL_DIR}/tools/roller.py`, `SPACE` means `${CLAUDE_SKILL_DIR}/references/option_space.md`, `CAST` means `${CLAUDE_SKILL_DIR}/references/cast.md`, `LOG` means `${CLAUDE_SKILL_DIR}/references/scenario_log.md`, and `EXAMPLE_LOG` means `${CLAUDE_SKILL_DIR}/references/scenario_log_example.md`.
@@ -111,4 +111,4 @@ On every turn:
    - **junior**: grade clarity of instructions, which planted mistakes they caught, and whether they verified your claims before acting on them.
    - **learn**: focus on the concepts to review next.
 4. If you hit an impossible combination that no rule caught, propose a new Hard rule in the syntax `SPACE` uses. Add it only if the user agrees, then run `ROLLER check --space SPACE --log LOG` and fix anything it reports.
-5. Log the scenario. If `LOG` does not exist, create an empty one using `EXAMPLE_LOG` as a guide. Insert a row at the top of the table in `LOG` with today's date, a short scenario name, the coordinate string exactly as `decode` printed it, and a one-line root cause. Don't log abandoned scenarios unless the user asks.
+5. Log the scenario. On the user's first run `LOG` doesn't exist yet: create it from `EXAMPLE_LOG`, keeping the title, intro paragraph and table header but none of the example rows. Then insert a row at the top of the table in `LOG`, formatted exactly like the rows in `EXAMPLE_LOG`: today's date, a short scenario name, the coordinate string exactly as `decode` printed it, and a one-line root cause. Don't log abandoned scenarios unless the user asks.

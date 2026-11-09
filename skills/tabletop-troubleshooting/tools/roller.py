@@ -459,7 +459,7 @@ def cmd_decode(args):
         for n in notes:
             print("  -", n)
     print("\nLog row (fill in date, scenario and root cause):")
-    print(f"| <date> | <scenario> | `{format_coords(assignment)}` | <root cause> |")
+    print(f"| <YYYY/MM/DD> | <scenario> | `{format_coords(assignment)}` | <root cause> |")
 
 
 def cmd_verify(args):
