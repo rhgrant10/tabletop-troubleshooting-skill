@@ -6,27 +6,27 @@ Ask a language model to make up incidents and you mostly get the same few back: 
 
 ## Quick start
 
-1. **Fork this repo**, or copy `.claude/skills/tabletop-troubleshooting/` into a repo you already use with Claude Code.
-2. Open the repo in Claude Code: the terminal, the desktop app, [claude.ai/code](https://claude.ai/code), or the **Code** tab in the Claude mobile app.
+1. **Install the skill:** copy (or symlink) `skills/tabletop-troubleshooting/` from this repo into `.claude/skills/` in a repo you use with Claude Code, or into `~/.claude/skills/` to have it in every project.
+2. Open that repo in Claude Code: the terminal, the desktop app, [claude.ai/code](https://claude.ai/code), or the **Code** tab in the Claude mobile app.
 3. Run:
 
    ```
    /tabletop-troubleshooting
    ```
 
-That starts a coached drill on Linux and distributed systems at medium difficulty. To change it, describe what you want in plain words:
+That starts a coached drill on Linux and distributed systems at medium difficulty. Everything else is up to the roll until you say otherwise.
+
+## What you can ask for
+
+Add a few words after the command. Plain words are enough, and settings combine:
 
 ```
-/tabletop-troubleshooting interview, storage, hard
-/tabletop-troubleshooting junior, databases, no security stuff
-/tabletop-troubleshooting learn, GPU clusters, pin device fleet
+/tabletop-troubleshooting interview, forensics, databases, hard
 ```
 
-Type `options` at any point to see the modes, domains and axes you can choose from.
+A broad word is taken as broad on purpose. `investigation` lets the roll pick any kind of investigation; `forensics` picks exactly one. Type `options` at any point to see the full menu.
 
-Working from a fork is the smoothest setup. The skill commits each scenario to your log, so your coverage history follows you between your laptop and phone.
-
-## Modes
+### How Claude plays
 
 | Mode | Claude's role | Scenario weighting | Time box |
 | --- | --- | --- | --- |
@@ -37,18 +37,50 @@ Working from a fork is the smoothest setup. The skill commits each scenario to y
 
 `junior` practices running an incident through someone else. Claude plans a few realistic mistakes in its summaries, such as calling high load average CPU saturation when it's really I/O wait. Its raw output is always truthful, so a careful lead can catch every mistake from the evidence.
 
-## Config
+### The situation
 
-Every setting is optional. Plain words work, and so do the codes from `option_space.md`.
+| Add | You get |
+| --- | --- |
+| `incident` | Something is broken now: a live incident, a recurrence, a handoff or a customer escalation |
+| `investigation` | Nothing is on fire: a performance or capacity investigation, post-incident forensics, or a pre-mortem |
+| `incident response` | A live incident, and only that |
+| `forensics` | The outage is over; work out what happened from what's left |
+| `pre-mortem` | You're handed a design and asked how it breaks |
+| `handoff` | You take over an incident someone else already touched, and their changes muddy the evidence |
+| `customer escalation` | It starts as a support ticket |
 
-| Setting | Values | Default |
-| --- | --- | --- |
-| Mode | `interview`, `drill`, `learn`, `junior` | `drill` |
-| Domain | one or more of 17 domains, e.g. Linux internals, networking, storage, databases, GPU/HPC, security, sociotechnical; can be weighted (`D2:3,D4:1`) | Linux + distributed systems |
-| Difficulty | `easy`, `medium`, `hard`: changes only how the scenario is written (signal strength, red herrings, noise), never what gets rolled | `medium` |
-| Overrides | pins ("pin device fleet"), exclusions ("no security stuff"), a coordinate string, or a named scenario of your own | none |
+### The terrain
 
-Before rolling, Claude echoes how it resolved your words, e.g. `Resolved: drill · D4:2, D5:1 · medium · pin E7 · exclude D11`, so misreadings get caught early.
+| Add | You get |
+| --- | --- |
+| `storage, some databases` | Mostly storage scenarios, some database ones |
+| `networking` | Routing, MTU, load balancers, NAT, firewalls |
+| `GPU clusters` | Collective-communication hangs, stragglers, InfiniBand, GPU errors, data loaders |
+| `device fleet` | The broken thing runs on remote devices you can't easily reach |
+| `managed cloud` | No host shell; provider metrics and logs only |
+| `sociotechnical` | Alert fatigue, ownership gaps, eroded trust in CI; you interview people instead of running commands |
+| `no security stuff` | Never rolls a security incident |
+
+### Make it harder
+
+| Add | You get |
+| --- | --- |
+| `hard` | A weak signal, several plausible red herrings, noisy output |
+| `bad evidence` | Something you'd rely on is missing, averaged away, delayed or lying |
+| `two causes` | Two faults that either need each other or just happen at once |
+| `far from the symptom` | The fault sits in the platform, the control plane, a caller, or the monitoring itself |
+
+`easy`, `medium` and `hard` change only how the scenario is written. The rest change what gets rolled.
+
+### Your own scenario
+
+```
+/tabletop-troubleshooting learn, DNS resolvers serving stale records after a failover
+```
+
+A scenario you describe skips the roll. Claude still logs it at the end, so it counts toward your coverage.
+
+Before rolling, Claude repeats your choices back in one line, e.g. `Resolved: drill · mostly storage, some databases · medium · excluded: security incidents`, so misreadings get caught early.
 
 ## How a session runs
 
@@ -56,54 +88,24 @@ Before rolling, Claude echoes how it resolved your words, e.g. `Resolved: drill 
 2. **Investigate.** You get a briefing with only what you'd know at the start, then you query the environment turn by turn. `pause` and `resume` freeze and restart the scenario clock.
 3. **Reveal.** When you declare a root cause (or give up), Claude asks for a 60-second mitigation and a prevention plan. Then it unseals the roll with `roller.py decode`, so the reveal comes from code rather than memory.
 4. **Debrief.** Claude grades how you scoped the blast radius, whether you reasoned with USE (utilization, saturation, errors) or RED (rate, errors, duration), whether you predicted outputs before seeing them, whether you spotted contradictions, and whether you mitigated before root-causing. Command accuracy matters least.
-5. **Log.** Claude adds a row to `scenario_log.md` and commits it. Future rolls steer away from what you've already done.
-
-## The option space
-
-`option_space.md` defines each scenario as one value per axis, grouped in tiers:
-
-| Tier | Axes |
-| --- | --- |
-| 0 | **D** domain (set in your config, not rolled) |
-| Rolled first | **A** assignment: live incident, forensics, pre-mortem, recurrence, customer escalation… |
-| 1: system context | **R** role · **W** workload · **S** state model · **G** dependency position · **E** environment · **F** fault location |
-| 2: the fault | **L** root-cause layer · **M** mechanism · **T** timing · **N** trigger · **C** cause structure · **I** impact |
-| 3: presentation | **Y** first symptom · **B** blast radius · **O** evidence quality · **X** mitigation constraints |
-
-A rolled scenario looks like this, though you'll only see it after the reveal:
-
-```
-D2 · R2 W1 S1 G3 E3 F3 · L12 M9 T5 N7 C3 I1 · Y14 B8 O4 A1 X6
-```
-
-That one is an auth service whose token-signing certificate expired during a change freeze. The symptom is permission errors in everything except auth itself, and a recent deploy is a red herring.
-
-### Rules
-
-The rules table in `option_space.md` keeps rolls coherent. It's machine-read, with a small syntax:
-
-| Type | Effect | Example |
-| --- | --- | --- |
-| Hard | Filters out impossible combinations | `G in {G3}` → `B in {B8}`: a foundational dependency failing means everything except the broken thing looks broken |
-| Prefer / Avoid | Multiplies a value's weight by 3 or 0.25; improbable stays possible | `M in {M9}` → `{N7,T5}`: expiry bugs usually come from time passing |
-| Writer | An obligation on the scenario text, not the roll | `E in {E4,E5}`: no host shell on a managed service |
-
-When Claude runs into a combination that's impossible but that no rule caught, it proposes a new Hard rule in the debrief. The rules grow from real gaps.
+5. **Log.** Claude adds a row to `scenario_log.md`. Future rolls steer away from what you've already done.
 
 ## Customizing
 
-Everything lives in `.claude/skills/tabletop-troubleshooting/`:
+Everything lives in the installed skill folder, e.g. `.claude/skills/tabletop-troubleshooting/`:
 
-- `option_space.md`: add values, rules, or edit the interview subset. Keep the table formats; the roller parses them.
-- `scenario_log.md`: your history. Edit or prune rows freely.
+- `references/option_space.md`: the axes, values, coherence rules and interview subset. It documents its own format; keep the table formats, because the roller parses them.
+- `references/scenario_log.md`: your history. It doesn't exist until your first scenario is logged; Claude creates it from `references/scenario_log_example.md`. It stays local: `.gitignore` keeps it out of this repo. Edit or prune rows freely.
+- `references/cast.md`: the first names Claude gives the people in a scenario. Add or remove names freely.
 - `SKILL.md`: the instructions Claude follows.
+- `tools/roller.py`: the roller.
 
-After editing the option space, validate it:
+When Claude runs into a combination that's impossible but that no rule caught, it proposes a new rule in the debrief, so the option space grows from real gaps. After any edit to it, validate it (leave out `--log` if you haven't logged a scenario yet):
 
 ```
-python3 .claude/skills/tabletop-troubleshooting/roller.py check \
-  --space .claude/skills/tabletop-troubleshooting/option_space.md \
-  --log .claude/skills/tabletop-troubleshooting/scenario_log.md
+python3 .claude/skills/tabletop-troubleshooting/tools/roller.py check \
+  --space .claude/skills/tabletop-troubleshooting/references/option_space.md \
+  --log .claude/skills/tabletop-troubleshooting/references/scenario_log.md
 ```
 
 `check` parses everything, reports unknown codes and rules that constrain an axis rolled before their condition, then stress-tests thousands of rolls in every mode.
@@ -117,6 +119,7 @@ python3 .claude/skills/tabletop-troubleshooting/roller.py check \
 | `roll --space S --log L [--mode M] [--domain D] [--pin P] [--exclude X] [--window N]` | Roll a sealed scenario. `--window` sets how many recent log rows count for coverage (default 20). |
 | `verify TOKEN "COORDS"` | Check a decode against a token; prints only `match` or `mismatch` |
 | `decode --space S TOKEN` | Unseal a token: coordinates, value names, Writer notes, and a ready-to-paste log row |
+| `cast --names N [--count K]` | Shuffle the cast list and print the first K names (default 5) for the people in a scenario |
 | `options --space S` | Print the config menu |
 | `check --space S [--log L]` | Validate the option space and stress-test the rules |
 
